@@ -99,7 +99,7 @@
 					Continue Shopping
                 </a>
          
-                <button onclick="pay()" class="btn btn-primary rounded-0">Checkout</button>
+                <button onclick="pay()" class="btn btn-primary rounded-0" type="button">Checkout</button>
                 
 			</div>
 			<div class='col'>
@@ -198,29 +198,33 @@
     <!-- SCRIPT -->
     @if(Session::has('cart'))
     <script src="https://js.stripe.com/v3/"></script>
-    <script>
-        var stripe = Stripe('pk_test_rWDY8edh1HwiHpUob84DPmgW00gIhpA9vM');
-        stripe.redirectToCheckout({
-            // Make the id field from the Checkout Session creation API response
-            // available to this file, so you can provide it as parameter here
-            // instead of 
-            sessionId: '{{$CHECKOUT_SESSION_ID}}'
-            }).then((result) => {
-            // If `redirectToCheckout` fails due to a browser or network
-            // error, display the localized error message to your customer
-            // using `result.error.message`.
-            $("#error_modal").modal('show');  
-        });
-        
-    </script>
-    @endif
-    <script>
+    <script>      
         function openDeleteItemModal(id, name) {
             $('#delete_cart_item_title').html("Delete " + name + "?");
             $('#delete_cart_item_question').html("Are you sure about deleting " + name + " from your cart?");
             $('#delete_cart_item_form').attr('action', '/menu/mycart/' + id + '/delete_cart_item');
             $('#delete_cart_item_modal').submit();
         }
+
+        function pay(){
+            var stripe = Stripe('pk_test_rWDY8edh1HwiHpUob84DPmgW00gIhpA9vM');
+                stripe.redirectToCheckout({
+                // Make the id field from the Checkout Session creation API response
+                // available to this file, so you can provide it as parameter here
+                // instead of 
+                sessionId: '{{$CHECKOUT_SESSION_ID}}'
+                }).then((result) => {
+                // If `redirectToCheckout` fails due to a browser or network
+                // error, display the localized error message to your customer
+                // using `result.error.message`.
+                // $("#error_modal").modal('show'); 
+                result.error.message;
+            });
+        }
+        
+    </script>
+    @endif
+    <script>
         function minus(id){
             $value = $("#quantity"+id).val();
             $value = parseInt($value);

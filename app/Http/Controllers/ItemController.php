@@ -164,7 +164,7 @@ class ItemController extends Controller
         $lineItems = [];
         $user = Auth::user();
 
-        if(Session::has('cart')) {
+        try {
             $cart = Session::get('cart');
 
             foreach($cart as $id => $quantity) {
@@ -187,27 +187,31 @@ class ItemController extends Controller
                     'currency' => 'usd',
                     'quantity' => (int)$quantity,
                 ];
+               
             }
-                //set the api key for stripe
-                \Stripe\Stripe::setApiKey('sk_test_EWR9FtmaOVnCrrrPrih3iIAd00ennTPY2A');
 
-                //create stripe session and pass ordered items and other details
-                //stripe will then provide us with an id that we can use as reference for the payment
-                $stripe_session = \Stripe\Checkout\Session::create([
-                    'payment_method_types' => ['card'],
-                    'customer_email' => $user->email,
-                    'line_items' => $lineItems,
-                    // 'success_url' => 'https://example.com/success',
-                    'success_url' => 'http://127.0.0.1:8000/transaction_complete',
-                    'cancel_url' => 'https://example.com/menu/mycart',
-                ]);
                 
-                //assign returned session id of stripe to a variable and return it to cart content
-                $CHECKOUT_SESSION_ID = $stripe_session['id'];
-                // dd($CHECKOUT_SESSION_ID);
+            //set the api key for stripe
+            \Stripe\Stripe::setApiKey('sk_test_EWR9FtmaOVnCrrrPrih3iIAd00ennTPY2A');
+
+            //create stripe session and pass ordered items and other details
+            //stripe will then provide us with an id that we can use as reference for the payment
+            $stripe_session = \Stripe\Checkout\Session::create([
+                'payment_method_types' => ['card'],
+                'customer_email' => $user->email,
+                'line_items' => $lineItems,
+                // 'success_url' => 'https://example.com/success',
+                'success_url' => 'http://127.0.0.1:8000/transaction_complete',
+                'cancel_url' => 'https://example.com/menu/mycart',
+            ]);
+            
+            //assign returned session id of stripe to a variable and return it to cart content
+            $CHECKOUT_SESSION_ID = $stripe_session['id'];
+            // dd($CHECKOUT_SESSION_ID);
             return view("items.cart_content", compact("item_cart", "total", "CHECKOUT_SESSION_ID"));
+        } catch (\Exception $e) {
+            return view("items.cart_content", compact("item_cart", "total"));
         }
-        return view("items.cart_content", compact("item_cart", "total"));
     }
 
     public function deleteCartItem($id) {
@@ -276,29 +280,25 @@ class ItemController extends Controller
 
 
     public function showOrders() {
-        //SELECT * FORM orders WHERE user_id = the id of the current user
-        //->get(), runs the get query 
-        // $orders=Order::withTrashed()->where("orders.user_id", Auth::user()->id)->get(); //for indiv users
-        $users = User::all();
-        // $orders = Order::withTrashed()->get(); //for admin
+        //1.) all orders, excluding soft deleted ones
         $orders = Order::all();
-        $statuses=Status::all();
+
+        //2.) all orders, including soft deleted ones
+        // $orders = Order::onlyTrashed()->get(); //for admin
+
+        //3.) orders of signed-in user, inclusing soft deleted ones
+        // $orders=Order::withTrashed()->where("orders.user_id", Auth::user()->id)->get(); 
+       
+        $statuses = Status::all();
+        $users = User::all();
         return view("orders.order_history", compact("orders", "statuses", "users"));
     }
 
     public function changeOrderStatus ($id, Request $request) {
         $status = Status::find($request->new_order_status); 
-        $order = Order::where('id', $id)
-                ->first(); //get method returns a collection
-    
-        // if ($order->trashed() && $status->id != 3) {
-        //     $order->restore();
-        // } 
-
-        // if ($status->id == 3) {
-        //     $order->delete();
-        // }
-
+        // $order = Order::where('id', $id)
+        //         ->first(); //get method returns a collection
+        $order = Order::find($id);
         $order->status_id = $status->id;
         $order->save();
         Session::flash("success_message", "Order #$order->id is now set to $status->status_name!");
@@ -307,26 +307,19 @@ class ItemController extends Controller
 
     public function deleteOrder($id) {
         // dd($id);
-        $order = Order::withTrashed()
-        ->where('id', $id)
-        ->first(); //get method returns a collection
-
+        $order = Order::find($id);
         $order->delete();
         return back()
-        ->with('delete_message',"Order #$id has been successfully deleted!")
-        ->with('undo_url', "/restore_order/$id" )
-        ->with('status', 'danger');
+        ->with('delete_message', "Order #$id has been successfully deleted!")
+        ->with('undo_url', "/restore_order/$id");
     }
 
-    public function restoreOrder($id) {
-        $order = Order::onlyTrashed()
-        ->where('id', $id)
-        ->first(); //get method returns a collection
-
+    public function restoreOrder($id){
+        $order = Order::onlyTrashed()->where('id', $id)->first();
+        // dd($order);
         $order->restore();
         Session::flash("success_message", "Order #$order->id has been restored!");
         return back();
     }
 
-   
 }

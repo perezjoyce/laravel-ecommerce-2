@@ -10,11 +10,15 @@
 			<div class='col-1'></div>
 			<div class="col">
 				@if(Session::has("success_message"))
-					<div class="alert alert-success">{{ ucfirst(Session::get("success_message")) }}</div>
+					<div class="alert alert-success">{{ ucfirst(Session::get("
+						
+						
+						")) }}</div>
 				@elseif(Session::has("delete_message"))
-					<div class="alert alert-{{ Session::get('status') }} status-box"> 
-						<span>{{ ucfirst(Session::get("delete_message")) }}</span>
-						<a href="{{Session::get('undo_url')}}" class="btn btn-link font-weight-bold">UNDO</a>
+					<div class="alert alert-danger status-box"> 
+						<span>{{ Session::get("delete_message")}}</span>
+						<a href="{{ Session::get('undo_url') }}" 
+							class="btn btn-link">UNDO</a>
 					</div>
 				@elseif(Session::has("error_message"))
 					<div class="alert alert-danger">{{ ucfirst(Session::get("error_message")) }}</div>
@@ -47,6 +51,7 @@
 							<th scope="col">Total</th>
 							<th scope="col">Status</th>
 							<th scope="col">Action</th>
+						
 						</tr>
 					</thead>
 					<tbody>
@@ -72,9 +77,10 @@
 								</td>
 								<td>
 									<a href="#" onclick="deleteOrder({{ $order->id }})">
-									 	<i class="fas fa-trash-alt fa-2x text-secondary"></i>
+										<i class="fas fa-trash alt fa-2x text-secondary"></i>
 									</a>
 								</td>
+								
                             </tr>
 						@endforeach
 					</tbody>
@@ -88,7 +94,7 @@
 
 
 
-	<div class="modal fade" id="delete_order_modal" tabindex="-1" role="dialog" aria-labelledby="delete_order_modal" aria-hidden="true">
+	<div class="modal fade" id="delete_order_modal" tabindex="-1" role="dialog">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header p-5">
@@ -97,7 +103,6 @@
                    		<span aria-hidden="true">&times;</span>
                     </button>
                 </div>
-
                 <div class="modal-body p-5">
 					<span id="delete_order_question"></span>		
 				</div>
@@ -105,12 +110,12 @@
 					<form method="post" id="delete_order_form">
 							@csrf
 							{{ method_field('DELETE') }}
-							<input type="hidden" name="new_order_status" id="new_order_status">
-							<button type='submit' class='btn btn-lg bg-dark text-light rounded-0'>Confirm Deletion</button>
-							<button type="button" class="btn btn-lg border rounded-0" data-dismiss="modal">Close</button>
+							<button type='submit' class='btn btn-lg bg-dark text-light 
+							rounded-0'>Confirm Deletion</button>
+							<button type="button" class="btn btn-lg border rounded-0" 
+							data-dismiss="modal">Close</button>
 					</form>	
 				</div>
-
         	</div>
         </div>
     </div>
@@ -163,17 +168,17 @@
 			$('#status_modal').modal('show');
 		}
 
-
-		function deleteOrder(orderid) {
+		function deleteOrder(orderid){
 			var question = document.getElementById('delete_order_question');
 			question.innerHTML = "Do you want to delete order #" + orderid + "?";
 
-			//add action/route
-			document.getElementById('delete_order_form').setAttribute('action', '/delete_order/' + orderid);
+			document.getElementById('delete_order_form')
+				.setAttribute('action', '/delete_order/' + orderid);
 
-			//show modal
 			$('#delete_order_modal').modal('show');
 		}
+
+
 	</script>
 
 	
