@@ -1,9 +1,9 @@
 <?php
 
 namespace App\Http\Middleware;
-use Auth;
 
 use Closure;
+use Illuminate\Support\Facades\Auth;
 
 class isAdmin
 {
@@ -15,13 +15,11 @@ class isAdmin
      * @return mixed
      */
     public function handle($request, Closure $next)
-    {
-        if (Auth::user() &&  Auth::user()->role == 'admin') {
+    {   
+        if(Auth::user() && Auth::user()->role == 'admin'){
             return $next($request);
         }
-        
         return redirect('/orders');
         
     }
 }
-

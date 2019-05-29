@@ -15,9 +15,9 @@ use App\Http\Controllers\ItemController;
 Route::get('/', function () {
     return view('welcome');
 });
-
 Route::get('/catalog', 'ItemController@showItems');
-Route::get("/menu/mycart", "ItemController@showCart")->middleware('isAdmin', 'auth'); 
+Route::get("/menu/add", "ItemController@addItemForm");
+Route::get("/menu/mycart", "ItemController@showCart"); //
 
 Route::delete("/menu/clear_cart", "ItemController@clearCart");
 Route::delete('/menu/mycart/{id}/delete_cart_item', "ItemController@deleteCartItem");
@@ -25,12 +25,14 @@ Route::patch('/menu/mycart/{id}/change_quantity', "ItemController@changeItemQuan
 Route::get('/menu/{id}', 'ItemController@itemDetails');
 Route::post("/add_to_cart/{id}", "ItemController@addToCart");
 
-Route::group(['middleware' => ['auth']], function () {
-    Route::get('/transaction_complete', "ItemController@checkout");
-    Route::get('/orders', "ItemController@showOrders");
-    Route::get("/menu/add", "ItemController@showAddItemForm");
+
+Route::get('/transaction_complete', "ItemController@checkout"); //
+Route::get('/orders', "ItemController@showOrders")->middleware('isAdmin'); //
+
+
+Route::middleware("isAdmin")->group(function(){
+   // this doesn't work when grouped with the rest
     Route::post("/menu/add_item", "ItemController@saveNewItem");
-    // Route::get("/checkout", "ItemController@checkout");
     Route::delete("/menu/{id}/delete_item", "ItemController@deleteItem");
     Route::get("/menu/{id}/edit_form", "ItemController@showEditForm");
     Route::patch("/menu/{id}/edit_item", "ItemController@editItem");
@@ -38,6 +40,8 @@ Route::group(['middleware' => ['auth']], function () {
     Route::delete('/delete_order/{id}', 'ItemController@deleteOrder');
     Route::get('/restore_order/{id}', 'ItemController@restoreOrder');
 });
+   
+
 
 Auth::routes();
 

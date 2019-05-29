@@ -36,7 +36,8 @@ class ItemController extends Controller
         }
     }
 
-    public function showAddItemForm() {
+    public function addItemForm() {
+        // dd('test');
     	$categories = Category::all();
     	return view("items.add_item", compact("categories"));
     }

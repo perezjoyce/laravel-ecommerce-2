@@ -2,6 +2,19 @@
 
 @section('content')
 <div class="container">
+    <div class="row">
+        <div class="col">
+            @if(Session::has("success_message"))
+                <div class="alert alert-success">{{ ucfirst(Session::get("success_message")) }}</div>
+            @elseif(Session::has("delete_message"))
+                <div class="alert alert-danger">{{ ucfirst(Session::get("delete_message")) }}</div>
+            @elseif(Session::has("error_message"))
+                <div class="alert alert-danger">{{ ucfirst(Session::get("error_message")) }}</div>
+            @else
+                <div class="py-4"></div>
+            @endif
+        </div>
+    </div>
     <div class="row justify-content-center">
         <div class="col-md-8">
             <div class="card">

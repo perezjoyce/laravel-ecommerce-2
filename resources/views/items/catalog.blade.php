@@ -11,7 +11,7 @@
 				@foreach(\App\Category::all() as $category)
 					<a href="/menu/categories/{{$category->id}}" class="btn btn-primary rounded-0">{{ $category->name }}</a>
 				@endforeach
-				<a href="/menu/add" class="btn btn-success rounded-0 float-right"> Add New Item </a>
+				<a href="/menu/add" class="btn btn-success rounded-0 float-right"> Add New Item</a>
 				<hr>
 			</div>
 		</div>
